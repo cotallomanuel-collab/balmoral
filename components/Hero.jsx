@@ -23,8 +23,8 @@ export default function Hero() {
 
   return (
     <section className="flex min-h-screen w-full items-center pt-28">
-      <div className="mx-auto grid w-full max-w-[1800px] grid-cols-1 items-center gap-12 px-6 md:grid-cols-2 md:px-10">
-        <div className="relative aspect-square w-full max-w-[520px] justify-self-center md:justify-self-start">
+      <div className="mx-auto grid w-full max-w-[1900px] grid-cols-1 items-center gap-12 px-4 md:grid-cols-2 md:px-6">
+        <div className="relative aspect-[4/5] w-full max-w-[640px] justify-self-center md:justify-self-start">
           <AnimatePresence>
             <motion.div
               key={LOGOS[index]}
@@ -45,9 +45,9 @@ export default function Hero() {
           </AnimatePresence>
         </div>
 
-        <div className="max-w-xl">
+        <div className="w-full">
           <Copy delay={0.3}>
-            <h1 className="text-4xl leading-[1.1] font-black tracking-tight md:text-5xl">
+            <h1 className="text-4xl leading-[1.1] font-black tracking-tight select-none sm:text-5xl md:text-6xl lg:text-7xl">
               INDEPENDENCE
               <br />
               IS A STRENGTH
@@ -55,7 +55,7 @@ export default function Hero() {
           </Copy>
 
           <Copy delay={0.6} animateOnScroll={false}>
-            <p className="mt-6 text-base leading-relaxed text-neutral-700 md:text-lg">
+            <p className="mt-8 text-xl leading-relaxed font-bold text-neutral-700 md:text-2xl">
               Supporting artists and labels worldwide since 2006, Balmoral is
               a fully independent label services company. High standards,
               agility and freedom of choice shape our daily expression of

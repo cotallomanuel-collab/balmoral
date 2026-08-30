@@ -19,7 +19,7 @@ export default function NewsletterSection() {
       id="artists"
       className="flex min-h-screen w-full items-center bg-white py-24 text-black"
     >
-      <div className="mx-auto grid w-full max-w-[1800px] grid-cols-1 items-center gap-16 px-6 md:grid-cols-2 md:px-10">
+      <div className="mx-auto grid w-full max-w-[1900px] grid-cols-1 items-center gap-16 px-4 md:grid-cols-2 md:px-6">
         <div className="relative mx-auto aspect-square w-full max-w-[460px]">
           <Image
             src="/images/RECURSOS_BALMORAL_022.png"
@@ -31,12 +31,12 @@ export default function NewsletterSection() {
 
         <div className="max-w-lg">
           <Copy>
-            <h2 className="text-4xl leading-[1.1] font-black tracking-tight md:text-5xl">
+            <h2 className="text-5xl leading-[1.05] font-black tracking-tight md:text-6xl">
               Join the flock
             </h2>
           </Copy>
           <Copy delay={0.15}>
-            <p className="mt-6 text-base leading-relaxed text-neutral-600 md:text-lg">
+            <p className="mt-6 text-lg leading-relaxed text-neutral-600 md:text-xl">
               Subscribe to the Balmoral newsletter for label news, artist
               releases and behind-the-scenes stories, straight to your inbox.
             </p>

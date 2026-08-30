@@ -29,7 +29,7 @@ export default function FallingWords({ triggerRef }) {
           observer.disconnect();
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.6 }
     );
     observer.observe(el);
     return () => observer.disconnect();

@@ -5,8 +5,8 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-black px-6 py-16 text-white md:px-10">
-      <div className="mx-auto flex w-full max-w-[1800px] flex-col gap-16">
+    <footer className="w-full bg-black px-4 py-16 text-white md:px-6">
+      <div className="mx-auto flex w-full max-w-[1900px] flex-col gap-16">
         <div className="flex flex-col justify-between gap-10 md:flex-row">
           <nav className="flex flex-col gap-2 text-3xl font-semibold md:text-4xl">
             <Link href="#jobs" className="hover:opacity-70">
