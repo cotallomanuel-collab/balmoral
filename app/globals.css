@@ -50,33 +50,15 @@ body::-webkit-scrollbar {
   display: block;
 }
 
-.falling-words-stage {
-  cursor: default;
+.carousel-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.falling-word {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 4px 12px 8px;
-  font-family: var(--font-sans);
-  font-size: clamp(16px, 2.4vw, 32px);
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  text-transform: uppercase;
-  white-space: normal;
-  text-align: center;
-  max-width: min(80%, 360px);
-  color: var(--purple);
-  user-select: none;
-  will-change: transform;
-  transform-origin: 50% 50%;
-  cursor: grab;
-}
-
-.falling-word.is-grabbing {
-  cursor: grabbing;
+.carousel-scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .block-line-wrapper {

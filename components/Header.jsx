@@ -3,13 +3,7 @@
 import Image from "next/image";
 import TransitionLink from "./transitions/TransitionLink";
 import MobileMenu from "./MobileMenu";
-
-const navLinks = [
-  { label: "About", href: "/about" },
-  { label: "Studios", href: "/studios" },
-  { label: "Artists & Labels", href: "/artists-and-labels" },
-  { label: "What We Do", href: "/what-we-do" },
-];
+import { navLinks } from "@/lib/navLinks";
 
 export default function Header() {
   return (
@@ -26,14 +20,14 @@ export default function Header() {
           />
         </TransitionLink>
 
-        <nav className="hidden items-center gap-10 text-base font-bold tracking-tight uppercase md:flex">
+        <nav className="hidden items-center gap-10 text-base font-bold tracking-tight md:flex">
           {navLinks.map((link) => (
             <TransitionLink
               key={link.href}
               href={link.href}
               className="hover:opacity-60"
             >
-              {link.label}
+              {link.label.toUpperCase()}
             </TransitionLink>
           ))}
         </nav>

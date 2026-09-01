@@ -4,13 +4,7 @@ import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import TransitionLink from "./transitions/TransitionLink";
-
-const LINKS = [
-  { label: "About", href: "/about" },
-  { label: "Studios", href: "/studios" },
-  { label: "Artists & Labels", href: "/artists-and-labels" },
-  { label: "What We Do", href: "/what-we-do" },
-];
+import { navLinks as LINKS } from "@/lib/navLinks";
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -79,16 +73,16 @@ export default function MobileMenu() {
     const next = !isOpen;
     setIsOpen(next);
     if (next) {
-      tlRef.current?.play();
+      tlRef.current?.timeScale(1).play();
     } else {
-      tlRef.current?.reverse();
+      tlRef.current?.timeScale(1.6).reverse();
     }
   };
 
   const closeMenu = () => {
     if (!isOpen) return;
     setIsOpen(false);
-    tlRef.current?.reverse();
+    tlRef.current?.timeScale(1.6).reverse();
   };
 
   return (

@@ -21,19 +21,20 @@ export default function FluidCursor({ areaRef }) {
         ]);
         if (cancelled) return;
 
-        // Same config as the reference demo.
+        // Toned down, low curl for a rounder blob — hard edge kept so the
+        // diff-blend reveal (letters turning white) stays fully opaque.
         sim = new FluidSimulation(
           host,
           {
             simResolution: 256,
             dyeResolution: 1024,
-            curl: 50,
+            curl: 20,
             pressureIterations: 40,
-            velocityDissipation: 0.95,
-            dyeDissipation: 0.95,
-            splatRadius: 0.3,
-            forceStrength: 8.5,
-            pressureDecay: 0.75,
+            velocityDissipation: 0.96,
+            dyeDissipation: 0.96,
+            splatRadius: 0.4,
+            forceStrength: 9,
+            pressureDecay: 0.8,
             threshold: 1.0,
             edgeSoftness: 0.0,
             inkColor: new THREE.Color(1, 1, 1),

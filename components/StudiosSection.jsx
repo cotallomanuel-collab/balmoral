@@ -31,41 +31,27 @@ export default function StudiosSection() {
       className="w-full bg-white px-4 py-24 text-black md:px-6"
     >
       <div className="mx-auto w-full max-w-[1900px]">
-        <Copy>
-          <h2 className="text-center text-5xl leading-[1.02] font-black tracking-tight uppercase select-none md:text-6xl lg:text-7xl">
-            Allow us to re-introduce ourselves&hellip;
-          </h2>
-        </Copy>
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:items-start md:gap-16">
+          <Copy>
+            <h2 className="-mt-1 text-4xl leading-[1.1] font-black tracking-tight select-none sm:text-5xl md:-mt-3 md:text-7xl lg:-mt-5 lg:text-8xl">
+              Allow us to re-introduce ourselves&hellip;
+            </h2>
+          </Copy>
 
-        <Copy delay={0.1}>
-          <div className="mx-auto mt-10 flex w-full flex-col gap-2 text-center text-xl leading-snug font-bold text-neutral-700 md:gap-6 md:text-2xl">
-            <p>
-              Balmoral is home to music making. We&apos;re an independent
-              label services company built on trust, and a partner in sonic
-              innovation, with the experience and craft to bring out the best
-              music in any vision or idea.
-            </p>
-            <p>
-              Once a small handful of people believing independent artists
-              deserved the same tools as the majors, we&apos;re now a global
-              community of artists, experts, inventors and engineers, whose
-              technology and expertise can be accessed from anywhere in the
-              world.
-            </p>
-            <p>
-              Alongside our studios and writing spaces, we work to develop
-              ground-breaking technology that continues to change the future
-              of music making. And through our events, we&apos;re creating
-              one-off experiences and empowering a new generation of talent.
-            </p>
-            <p>
-              This home has helped soundtrack first releases, sold-out tours,
-              heartbreaks and comebacks. Across genres, generations and
-              continents, Balmoral helps music makers move the world.
-            </p>
-            <p className="font-semibold text-black">Come on in.</p>
+          <div className="md:pt-2 lg:pt-3">
+            <Copy delay={0.1}>
+              <p className="text-base leading-snug font-normal text-neutral-700 md:text-2xl md:font-bold lg:text-3xl">
+                Supporting artists and labels worldwide since 2006, Balmoral
+                is a fully independent label services company. High
+                standards, agility and freedom of choice shape our daily
+                expression of independence and mark our strengths.
+              </p>
+            </Copy>
+            <button className="mt-6 rounded-full border border-black px-6 py-3 text-sm font-semibold transition-colors hover:bg-black hover:text-white">
+              Learn More
+            </button>
           </div>
-        </Copy>
+        </div>
 
         <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-3">
           {CARDS.map((card, i) => (
