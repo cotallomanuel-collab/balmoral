@@ -67,6 +67,14 @@ body::-webkit-scrollbar {
   display: block;
 }
 
+/* BlockReveal sizes each line wrapper to max-content so the sweeping bar hugs
+   the text. That also pins every line to the left, so centred copy needs the
+   wrappers centred too. Scoped to the technology copy on purpose — the
+   headline above it keeps its staggered alignment. */
+.techno-copy .block-line-wrapper {
+  margin-inline: auto;
+}
+
 .block-line {
   position: relative;
   display: block;

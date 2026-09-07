@@ -54,8 +54,10 @@ header) pero **no hay i18n implementada** — son botones sin función.
 ```
 
 - Tipografía base: `"Helvetica Neue", Helvetica, Arial, sans-serif` (fuente de sistema, no se carga).
-- **EB Garamond italic** (`next/font/google`) se carga como variable `--font-eb-garamond-italic`
-  y se usa en **un único sitio**: el párrafo de acento de la página About.
+- **EB Garamond** (`next/font/google`) se carga en **dos cortes**, ambos peso 400:
+  - `--font-eb-garamond-italic` (cursiva) → el párrafo de acento de la página About.
+  - `--font-eb-garamond` (redonda) → el párrafo destacado de la sección Technology
+    (añadido el 2026-09-07, ver bitácora).
 - Barras de scroll ocultas globalmente (`html`, `body`, `.carousel-scroll`).
 - Ancho máximo de contenedor consistente: `max-w-[1900px]`.
 
@@ -172,7 +174,7 @@ Verificado en navegador: el `<title>` de `/about` es efectivamente `Balmoral | L
 | [Hero.jsx](components/Hero.jsx) | Grid 2 columnas. Izquierda: 3 logos que rotan cada 2600 ms con cross-fade `clipPath` (Framer Motion). Derecha: "INDEPENDENCE / IS A STRENGTH" + párrafo + botón |
 | [StudiosSection.jsx](components/StudiosSection.jsx) | "Allow us to re-introduce ourselves…" + 3 tarjetas de color enlazadas a `/studios`, `/innovation`, `/events` |
 | [DistributionSection.jsx](components/DistributionSection.jsx) | Fondo rosa. "Distribution and beyond" + los 8 servicios rotados, **estáticos** (sin animación desde 2026-09-07, ver bitácora) |
-| [TechnoSection.jsx](components/TechnoSection.jsx) | **Bifurca desktop/móvil.** Desktop: `FluidCursor` WebGL + títulos escalonados + `WordReveal`. Móvil: sin WebGL, `BlockReveal` con barras rosas. Debajo, el `ImageCarousel` |
+| [TechnoSection.jsx](components/TechnoSection.jsx) | **Bifurca desktop/móvil.** Desktop: `FluidCursor` WebGL + títulos escalonados + `WordReveal`. Móvil: sin WebGL, `BlockReveal` con barras rosas. Tipografía editorial sans → serif → sans con filetes, en columna común (2026-09-07). Debajo, el `ImageCarousel` |
 | [NewsletterSection.jsx](components/NewsletterSection.jsx) | "Join the flock" + formulario de email. **Solo estado local**: `setSubmitted(true)`, no envía nada a ningún sitio |
 
 ### Componentes de animación de texto (todos GSAP + SplitText)
@@ -500,3 +502,39 @@ Cada ronda de correcciones se apunta aquí: **qué se pidió, qué se hizo, por 
   - Cursiva: **1 línea** en desktop, o sea subtítulo real.
   - Texto visible sin hacer scroll: desfase de 0-2 px respecto a su caja en los 8 anchos.
   - Sin desbordamiento horizontal, 0 errores de página. `build` limpio y `lint` sin warnings nuevos.
+
+### 2026-09-07 — Technology: tipografía editorial según referencia de revista
+- **Qué se pidió:** replicar la lógica de una doble página de revista ("ON SUSTAINABLE FASHION"):
+  titular en grotesca pesada con interlineado más apretado; párrafo destacado en **serif redonda**
+  a tamaño intermedio; párrafo secundario de vuelta a la sans, más pequeño y en peso regular;
+  todo centrado línea a línea, no justificado; bloque muy compacto; **filetes finos** entre
+  titular/serif y entre serif/sans; y el botón más cerca.
+- **Qué se hizo:**
+  - [app/layout.js](app/layout.js): se añade el **corte romano** de EB Garamond como
+    `--font-eb-garamond`. El proyecto solo cargaba la cursiva, y "serif redonda" exige la recta.
+    La cursiva se deja **intacta** para no tocar About.
+  - [components/TechnoSection.jsx](components/TechnoSection.jsx): los dos párrafos y los dos
+    filetes pasan a **una columna común** (`md:w-[82%]`); antes tenían anchos distintos
+    (`TEXT_WIDTH = ["100%","72%"]`, ya eliminado). Párrafo destacado a serif redonda peso 400 con
+    `clamp()` en `vw`; secundario a sans `font-normal` y claramente menor. Interlineados a
+    `1.15` y `1.35`. Titular de `leading-[0.9]`→`[0.82]` en desktop y `[1.05]`→`[0.95]` en móvil.
+    Huecos de `mt-8`/`gap-4`/`mt-10` a 20-24 px en desktop y 16-20 px en móvil.
+  - [app/globals.css](app/globals.css): regla `.techno-copy .block-line-wrapper { margin-inline: auto }`.
+- **Bug de móvil detectado y corregido de paso:** en móvil los párrafos salían **alineados a la
+  izquierda pese al `text-center`**, porque `BlockReveal` ajusta cada línea a `width: max-content`
+  para que la barra rosa cubra justo el texto, y eso las ancla a la izquierda. Se centran con
+  `margin-inline:auto` **acotado a `.techno-copy`**, para que el titular conserve su escalonado.
+- **Discrepancia señalada al usuario:** en la referencia el párrafo inferior **también es serif**;
+  la alternancia real es grotesca en el titular → serif en todo lo demás. El usuario pidió
+  explícitamente sans → serif → sans, así que **se hizo como pidió**, dejando constancia.
+- **Verificación** en 1920, 1440, 1280, 1024, 768, 430, 390 y 320 px:
+  - 2 filetes de **1 px exacto**, con ancho **idéntico a la columna** en los 8.
+  - Destacado: `EB Garamond`, peso 400. Secundario: `Helvetica Neue`, peso 400 y menor tamaño.
+  - `text-align: center` y **desvío del eje = 0** en todas las cajas de línea de los 8 anchos,
+    con anchos de línea desiguales → centrado línea a línea y **no** justificado.
+  - Huecos: 24/20/20/20/24 px en desktop; 20/16/16/16/24 px en móvil.
+  - Fluid cursor intacto (1 canvas en desktop, 0 en móvil), 21 imágenes del carrusel, botón
+    presente, serif cargada, 0 errores. `build` limpio, `lint` sin warnings nuevos.
+  - **Cuidado al medir el centrado:** `SplitText` parte en palabras, así que buscar "el nodo de
+    texto más ancho" mide una palabra suelta y da un falso negativo. Hay que usar
+    `Range.getClientRects()`, que devuelve un rect por caja de línea.
