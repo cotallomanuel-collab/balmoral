@@ -73,7 +73,7 @@ de modo que quedan fuera del `<main>` que se anima en las transiciones de págin
 | Ruta | Archivo | Tipo | Contenido |
 |---|---|---|---|
 | `/` | [app/page.js](app/page.js) | `"use client"` | Compone 5 secciones: Hero, Studios, Distribution, Techno, Newsletter |
-| `/about` | [app/about/page.js](app/about/page.js) | `"use client"` | **Página única con diseño propio** (foto de fondo a pantalla completa + 3 bloques de texto) |
+| `/about` | [app/about/page.js](app/about/page.js) | `"use client"` | **Página única con diseño propio**: foto a pantalla completa + bloque de 3 piezas (título, cursiva, párrafo) en una columna común, anclado a la mitad inferior — maquetado según una referencia de doble página de revista (ver bitácora 2026-09-07) |
 | `/studios` | [app/studios/page.js](app/studios/page.js) | server | `PageHero`, fondo `--purple` |
 | `/what-we-do` | [app/what-we-do/page.js](app/what-we-do/page.js) | server | `PageHero`, fondo `--pink` |
 | `/contact` | [app/contact/page.js](app/contact/page.js) | server | `PageHero`, fondo blanco |
@@ -459,3 +459,44 @@ Cada ronda de correcciones se apunta aquí: **qué se pidió, qué se hizo, por 
 - **Discrepancia señalada al usuario:** en su lista escribió *"PR AND MEDIA"*, pero el texto real
   del código es **"PR and Marketing"**. Como pidió cambiar solo el efecto, **se mantuvo el texto
   original**. Pendiente de confirmar si quiere cambiarlo.
+
+### 2026-09-07 — About: bloque de texto según referencia de revista
+- **Qué se pidió:** rehacer el bloque de la página About tomando como referencia una doble página
+  de revista (reportaje de Steven Meisel). En concreto: bajar el bloque a la mitad inferior de la
+  foto; igualar el ancho de la cursiva y el párrafo a una columna común **más ancha** que la
+  actual, para que el párrafo ocupe menos líneas; reducir mucho los huecos verticales para que los
+  tres se lean como una sola pieza; poner la cursiva pegada bajo el título como subtítulo; bajar el
+  tamaño del párrafo para marcar jerarquía; y mantener el título llenando esa columna sin
+  desbordarla.
+- **Qué se hizo** en [app/about/page.js](app/about/page.js):
+  - Los tres elementos pasan a vivir dentro de **un único `div` de columna** (`w-full md:w-[74%]`)
+    con los hijos a `w-full`. Antes cada uno tenía su propio ancho (`md:w-[62%]` la cursiva y
+    `md:w-[48%]` el párrafo), que es lo que impedía que cuadrasen.
+  - **74 % es el ancho que llena el título a `9vw`**, así que el título define la columna y los
+    otros dos se ajustan a ella.
+  - Los dos párrafos pasan a **`clamp()` con unidad `vw`** en vez de tamaños fijos: la columna
+    escala con el viewport, así que un tamaño fijo hacía crecer el número de líneas al estrechar.
+    Con `vw` el recuento se mantiene ≈3 líneas en desktop, como la referencia.
+  - Huecos comprimidos: de `mt-10` + `gap-5` a `mt-1.5`/`mt-3.5` (8 px y 16 px reales en desktop).
+  - Jerarquía: párrafo de `md:text-3xl lg:text-4xl` → `clamp(1rem,1.25vw,1.6rem)`; cursiva a
+    `clamp(0.8rem,0.95vw,1.15rem)`.
+  - Título en móvil de `13vw` → `11.5vw`, para que **deje de desbordar** su contenedor (era el
+    punto 14 de §6 de esta auditoría, que queda resuelto de paso).
+  - Los tres `Copy` pasan a **`animateOnScroll={false}`** — ver más abajo.
+- **Problema detectado y corregido durante la verificación:** al bajar el bloque, los dos párrafos
+  quedaron **invisibles al cargar**. `Copy` anima con `ScrollTrigger` en `start: "top 80%"`, y al
+  moverse a la mitad inferior ya no cruzaban ese umbral hasta hacer scroll. Se detectó en captura
+  de desktop 1440 (solo se veía el título). Arreglado con `animateOnScroll={false}` en los tres,
+  el mismo patrón que ya usa [Hero.jsx](components/Hero.jsx). **Es un hero: debe verse al entrar.**
+- **Verificación** en 1920, 1440, 1280, 1024, 768, 430, 390 y 320 px:
+  - Ancho de cursiva == ancho de párrafo: **exacto en los 8**.
+  - Los tres alineados al mismo eje: **sí en los 8**.
+  - El título llena el **96-99 %** de la columna y **no la desborda en ninguno**. (Ojo al medirlo:
+    `SplitText` envuelve el texto en `div`s de línea al 100 %, así que hay que medir el **nodo de
+    texto** con un `Range`, no la caja del `h1` — medir la caja da un 100 % falso.)
+  - Inicio del bloque: entre el **53 % y el 71 %** de la altura de la sección → mitad inferior en
+    todos los anchos.
+  - Párrafo: **3 líneas** de 1280 a 1920 (como la referencia), 4 a 1024, 5 a 768.
+  - Cursiva: **1 línea** en desktop, o sea subtítulo real.
+  - Texto visible sin hacer scroll: desfase de 0-2 px respecto a su caja en los 8 anchos.
+  - Sin desbordamiento horizontal, 0 errores de página. `build` limpio y `lint` sin warnings nuevos.

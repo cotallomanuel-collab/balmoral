@@ -16,18 +16,23 @@ export default function AboutPage() {
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/50" />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-[1900px] flex-col items-center px-4 pt-32 pb-20 text-center md:px-6 md:pb-28">
-        <Copy>
-          <h1 className="text-[13vw] leading-[0.85] font-black tracking-tight uppercase select-none md:text-[9vw]">
-            Independence
-          </h1>
-        </Copy>
+      <div className="relative z-10 mx-auto flex w-full max-w-[1900px] flex-col items-center px-4 pt-24 pb-10 text-center md:px-6 md:pb-16">
+        {/* Title, italic standfirst and body share one column, so the three
+            read as a single block instead of three loose pieces. 74% is the
+            width the title fills at 9vw, so the title sets the column and the
+            other two match it. Both paragraphs scale with vw so the line count
+            stays roughly constant instead of growing as the column narrows. */}
+        <div className="mx-auto w-full md:w-[74%]">
+          <Copy animateOnScroll={false}>
+            <h1 className="text-[11.5vw] leading-[0.85] font-black tracking-tight uppercase select-none md:text-[9vw]">
+              Independence
+            </h1>
+          </Copy>
 
-        <div className="mt-10 flex w-full flex-col items-center gap-5">
-          <Copy delay={0.15}>
+          <Copy delay={0.15} animateOnScroll={false}>
             <p
               style={{ fontFamily: "var(--font-eb-garamond-italic)" }}
-              className="mx-auto w-[90%] max-w-full text-lg leading-snug font-normal md:w-[62%] md:text-xl lg:text-2xl"
+              className="mt-1.5 w-full text-xs leading-snug font-normal md:mt-2 md:text-[clamp(0.8rem,0.95vw,1.15rem)]"
             >
               Balmoral started as a handful of people who believed
               independent artists and labels deserved the same tools, reach
@@ -35,8 +40,9 @@ export default function AboutPage() {
               work.
             </p>
           </Copy>
-          <Copy delay={0.3}>
-            <p className="mx-auto w-[92%] max-w-full text-xl leading-snug font-bold opacity-90 md:w-[48%] md:text-3xl lg:text-4xl">
+
+          <Copy delay={0.3} animateOnScroll={false}>
+            <p className="mt-3.5 w-full text-[0.9375rem] leading-snug font-bold opacity-90 md:mt-4 md:text-[clamp(1rem,1.25vw,1.6rem)]">
               Today we&apos;re a global label services company supporting
               artists and labels across every genre, working out of our own
               studios and remotely with partners on every continent. We&apos;re
