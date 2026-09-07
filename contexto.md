@@ -538,3 +538,38 @@ Cada ronda de correcciones se apunta aquí: **qué se pidió, qué se hizo, por 
   - **Cuidado al medir el centrado:** `SplitText` parte en palabras, así que buscar "el nodo de
     texto más ancho" mide una palabra suelta y da un falso negativo. Hay que usar
     `Range.getClientRects()`, que devuelve un rect por caja de línea.
+
+### 2026-09-07 — About: tracking, cursiva mayor y cuerpo en peso ligero
+- **Qué se pidió:** apretar mucho el interletrado de INDEPENDENCE ("mucho más de lo que parecería
+  normal", como el "STEVENMEISEL" de la referencia); subir bastante el tamaño de la cursiva hasta
+  quedar casi igual que el cuerpo; y pasar el párrafo "Today we're a global…" a **grotesca ligera**
+  (no negrita), **más ancho que el título**, desbordándolo por ambos lados. Todo centrado y el
+  bloque igual de compacto.
+- **Qué se hizo** en [app/about/page.js](app/about/page.js):
+  - Titular: `tracking-tight` (−0.025em) → **`tracking-[-0.06em]`**. El glifo pasa de 997,9 px a
+    **943,5 px** a 1440 (−5,5 %).
+  - Cursiva: `clamp(0.8rem,0.95vw,1.15rem)` → **`clamp(0.95rem,1.15vw,1.5rem)`**. Queda al
+    **92-95 %** del tamaño del cuerpo.
+  - Cuerpo: `font-bold` → **`font-light`** (300), y contenedor `md:w-[82%]` para que desborde el
+    título. Se quitó también el `opacity-90`: con peso ligero sobre foto la legibilidad bajaba
+    demasiado. **Pendiente de confirmar** si se quiere recuperar algo de transparencia.
+  - Se elimina la columna común `md:w-[74%]` de la ronda anterior. Anchos ahora escalonados:
+    cursiva `md:w-[62%]` < título (natural) < cuerpo `md:w-[82%]`.
+- **Conflicto de instrucciones resuelto:** la ronda anterior pedía cursiva y cuerpo **a la misma
+  medida exacta**; esta pide el cuerpo **más ancho que el título**. Ambas juntas obligarían a que
+  la cursiva también desbordase el título, y en la referencia la cursiva es la **más estrecha** de
+  las tres. Se optó por la referencia (cursiva < título < cuerpo) y se avisó al usuario.
+- **Verificación** en 1920, 1440, 1280, 1024, 768, 430, 390 y 320 px: el cuerpo **desborda el
+  título por izquierda y por derecha en los 8**; la cursiva es **más estrecha que el título en los
+  8**; desvío del eje **0**; sin desbordamiento horizontal; 0 errores. `build` limpio, `lint` sin
+  warnings nuevos.
+- **Falsa alarma que conviene no repetir:** un primer test dijo que `font-light` se renderizaba
+  igual que `font-normal`. Era un error de medición — clonaba el `<p>` **con los `div`s de línea de
+  `SplitText` dentro**, así que medía el contenedor. Midiendo un `<span>` limpio con la pila real
+  a 40 px: peso 300 → 1061,2 px y peso 400 → 1143,1 px, o sea **el corte Light sí se aplica**.
+  Regla general: para medir tipografía en este proyecto hay que medir **nodos de texto**, nunca
+  elementos que hayan pasado por `Copy`/`SplitText`.
+- **Limitación conocida:** la sans es la pila de sistema (`Helvetica Neue, Helvetica, Arial`), sin
+  webfont. En macOS/iOS existe Helvetica Neue Light y el peso 300 se ve ligero de verdad; en
+  Windows/Android **Arial no tiene corte light**, así que ahí caerá a regular. Si se quiere el peso
+  ligero garantizado en todas las plataformas hay que cargar una webfont. **Decisión del usuario.**
