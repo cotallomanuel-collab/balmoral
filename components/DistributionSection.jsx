@@ -1,10 +1,6 @@
 "use client";
 
-import { useRef } from "react";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
 import Copy from "./Copy";
-import CascadeWord from "./CascadeWord";
 
 const SERVICES = [
   { label: "PR and Marketing", rotate: -3 },
@@ -18,67 +14,6 @@ const SERVICES = [
 ];
 
 export default function DistributionSection() {
-  const charsRef = useRef([]);
-
-  useGSAP(() => {
-    const groups = charsRef.current.filter(Boolean);
-    if (!groups.length) return;
-
-    const cascade = gsap.timeline({ repeat: -1, delay: 2.2 });
-    const charDuration = 0.9;
-    const charStagger = 0.09;
-    const sweepOf = (chars) => charDuration + (chars.length - 1) * charStagger;
-
-    let cursor = 0;
-    groups.forEach((chars, i) => {
-      // Hide this phrase, letter by letter.
-      cascade.to(
-        chars,
-        {
-          opacity: 0,
-          filter: "blur(14px)",
-          duration: charDuration,
-          stagger: charStagger,
-          ease: "sine.inOut",
-        },
-        cursor
-      );
-
-      // The moment the next phrase starts hiding, the previous one starts
-      // reappearing — no dead pause in between.
-      if (i > 0) {
-        cascade.to(
-          groups[i - 1],
-          {
-            opacity: 1,
-            filter: "blur(0px)",
-            duration: charDuration,
-            stagger: charStagger,
-            ease: "sine.inOut",
-          },
-          cursor
-        );
-      }
-
-      cursor += sweepOf(chars);
-    });
-
-    // Last phrase reappears right as the loop wraps back to the first one hiding.
-    cascade.to(
-      groups[groups.length - 1],
-      {
-        opacity: 1,
-        filter: "blur(0px)",
-        duration: charDuration,
-        stagger: charStagger,
-        ease: "sine.inOut",
-      },
-      cursor
-    );
-
-    return () => cascade.kill();
-  }, []);
-
   return (
     <section
       id="what-we-do"
@@ -99,11 +34,9 @@ export default function DistributionSection() {
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-4 py-12 md:justify-end md:gap-x-10 md:gap-y-8 md:py-0">
-          {SERVICES.map((service, i) => (
-            <CascadeWord
+          {SERVICES.map((service) => (
+            <span
               key={service.label}
-              delay={i * 0.05}
-              onReady={(chars) => (charsRef.current[i] = chars)}
               className="inline-block overflow-visible text-2xl leading-none font-black tracking-tight uppercase select-none md:text-4xl lg:text-5xl"
             >
               <span
@@ -112,7 +45,7 @@ export default function DistributionSection() {
               >
                 {service.label}
               </span>
-            </CascadeWord>
+            </span>
           ))}
         </div>
       </div>
