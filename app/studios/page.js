@@ -1,21 +1,19 @@
-import PageHero from "@/components/PageHero";
-
 export const metadata = {
   title: "Studios | Balmoral",
 };
 
 export default function StudiosPage() {
   return (
-    <PageHero
-      eyebrow="Studios"
-      title="Spaces built to make records"
-      bg="var(--purple)"
-      color="#ffffff"
-      paragraphs={[
-        "From 100-piece orchestras to solo artists working alone at 3am, our studios are built to hold whatever the session needs — live rooms, writing spaces and full production suites, all under one roof.",
-        "Can't make it in? Our team, technology and expertise travel just as well — record, mix and master remotely with the same standard of care, from anywhere in the world.",
-        "Every space is run by engineers who've shipped records across every genre, so whatever you're chasing, someone here has chased it too.",
-      ]}
-    />
+    <section
+      className="flex min-h-screen w-full items-center justify-center px-4 py-32 md:px-6"
+      style={{ backgroundColor: "var(--purple)" }}
+    >
+      <h1
+        style={{ fontFamily: "var(--font-display-serif)" }}
+        className="w-full text-center text-[12.5vw] md:text-[13vw] leading-[0.95] font-black text-white italic select-none"
+      >
+        Coming soon...
+      </h1>
+    </section>
   );
 }

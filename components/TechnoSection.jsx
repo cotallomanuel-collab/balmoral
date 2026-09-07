@@ -16,6 +16,13 @@ const ALIGN = ["", "self-end", "self-center"];
 const COLUMN = "mx-auto w-full md:w-[82%]";
 const RULE = "h-px w-full bg-black/25";
 const SERIF = { fontFamily: "var(--font-eb-garamond)" };
+const SCRIPT = { fontFamily: "var(--font-script-italic)" };
+
+// PLACEHOLDER — editorial credit line, awaiting real copy from the client.
+// Mirrors the contributor credits that sit under the headline in the
+// magazine reference. Replace the string, keep the styling.
+const CREDIT_PLACEHOLDER =
+  "Built in London by the Balmoral engineering, product and design teams.";
 
 const LEAD =
   "Our in-house team builds the tools our roster actually needs — from catalog management to release-day analytics, engineered by musicians, for musicians.";
@@ -69,16 +76,26 @@ export default function TechnoSection() {
             )}
           </div>
 
-          <div className={`techno-copy mt-5 md:mt-6 ${COLUMN}`}>
-            <div className={RULE} />
+          <div className={`techno-copy mt-3 md:mt-4 ${COLUMN}`}>
+            {/* PLACEHOLDER credit line — see CREDIT_PLACEHOLDER above. */}
+            <p
+              style={SCRIPT}
+              className="pointer-events-none text-center text-[clamp(0.8rem,1.05vw,1.3rem)] leading-[1.5] font-normal text-black/80 italic"
+            >
+              {CREDIT_PLACEHOLDER}
+            </p>
 
-            <div className="mt-4 md:mt-5">
+            <div className={`mt-4 md:mt-5 ${RULE}`} />
+
+            {/* leading-[1.5] keeps descenders (g, y, j) clear of the SplitText
+                word masks, which clip to the line box. */}
+            <div className="mt-6 md:mt-7">
               {isDesktop ? (
                 <WordReveal
                   delay={0.1}
                   stagger={0.02}
                   style={SERIF}
-                  className="pointer-events-none block text-center text-[clamp(1.15rem,2.05vw,2.5rem)] leading-[1.15] font-normal text-black"
+                  className="pointer-events-none block text-center text-[clamp(1.15rem,2.05vw,2.5rem)] leading-[1.5] font-normal text-black"
                 >
                   {LEAD}
                 </WordReveal>
@@ -86,7 +103,7 @@ export default function TechnoSection() {
                 <BlockReveal delay={0.1} blockColor="var(--pink)">
                   <p
                     style={SERIF}
-                    className="pointer-events-none text-center text-[clamp(1.05rem,5.4vw,1.75rem)] leading-[1.15] font-normal text-black"
+                    className="pointer-events-none text-center text-[clamp(1.05rem,5.4vw,1.75rem)] leading-[1.5] font-normal text-black"
                   >
                     {LEAD}
                   </p>
@@ -94,20 +111,21 @@ export default function TechnoSection() {
               )}
             </div>
 
-            <div className={`mt-4 md:mt-5 ${RULE}`} />
+            <div className={`mt-6 md:mt-7 ${RULE}`} />
 
-            <div className="mt-4 md:mt-5">
+            {/* Narrower measure than the serif above, inset on both sides. */}
+            <div className="mx-auto mt-6 w-[82%] md:mt-7 md:w-[68%]">
               {isDesktop ? (
                 <WordReveal
                   delay={0.3}
                   stagger={0.015}
-                  className="pointer-events-none block text-center text-[clamp(0.85rem,1.1vw,1.35rem)] leading-[1.35] font-normal text-black"
+                  className="pointer-events-none block text-center text-[clamp(0.85rem,1.1vw,1.35rem)] leading-[1.45] font-normal text-black"
                 >
                   {BODY}
                 </WordReveal>
               ) : (
                 <BlockReveal delay={0.2} blockColor="var(--pink)">
-                  <p className="pointer-events-none text-center text-[clamp(0.8rem,3.4vw,1.05rem)] leading-[1.35] font-normal text-black">
+                  <p className="pointer-events-none text-center text-[clamp(0.8rem,3.4vw,1.05rem)] leading-[1.45] font-normal text-black">
                     {BODY}
                   </p>
                 </BlockReveal>

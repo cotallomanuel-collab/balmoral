@@ -29,8 +29,8 @@ export default function AboutPage() {
 
           <Copy delay={0.15} animateOnScroll={false}>
             <p
-              style={{ fontFamily: "var(--font-eb-garamond-italic)" }}
-              className="mx-auto mt-1.5 w-[88%] text-sm leading-snug font-normal md:mt-2 md:w-[62%] md:text-[clamp(0.95rem,1.15vw,1.5rem)]"
+              style={{ fontFamily: "var(--font-script-italic)" }}
+              className="mx-auto mt-1.5 w-[88%] text-[1.28rem] leading-[1.4] font-normal italic md:mt-2 md:w-[62%] md:text-[clamp(1.33rem,1.75vw,2.29rem)]"
             >
               Balmoral started as a handful of people who believed
               independent artists and labels deserved the same tools, reach
@@ -40,7 +40,7 @@ export default function AboutPage() {
           </Copy>
 
           <Copy delay={0.3} animateOnScroll={false}>
-            <p className="mx-auto mt-3.5 w-full text-[0.9375rem] leading-snug font-light md:mt-4 md:w-[82%] md:text-[clamp(1rem,1.25vw,1.6rem)]">
+            <p className="mx-auto mt-3.5 w-full text-[1.0625rem] leading-snug font-light md:mt-4 md:w-[82%] md:text-[clamp(1.1rem,1.45vw,1.9rem)]">
               Today we&apos;re a global label services company supporting
               artists and labels across every genre, working out of our own
               studios and remotely with partners on every continent. We&apos;re

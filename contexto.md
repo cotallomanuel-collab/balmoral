@@ -54,10 +54,15 @@ header) pero **no hay i18n implementada** — son botones sin función.
 ```
 
 - Tipografía base: `"Helvetica Neue", Helvetica, Arial, sans-serif` (fuente de sistema, no se carga).
-- **EB Garamond** (`next/font/google`) se carga en **dos cortes**, ambos peso 400:
-  - `--font-eb-garamond-italic` (cursiva) → el párrafo de acento de la página About.
-  - `--font-eb-garamond` (redonda) → el párrafo destacado de la sección Technology
-    (añadido el 2026-09-07, ver bitácora).
+- **Tres fuentes de `next/font/google`** (estado a 2026-09-07):
+  - `--font-eb-garamond` — EB Garamond redonda 400 → párrafo destacado de Technology.
+  - `--font-script-italic` — **Cormorant Garamond cursiva** 400/500 → línea de crédito de
+    Technology y la línea de acento de About. Calligráfica, contraste marcado.
+  - `--font-display-serif` — **Playfair Display cursiva** 800/900 → el "Coming soon..." de Studios.
+  - ⚠️ **EB Garamond cursiva se eliminó**: su único consumidor (About) pasó a Cormorant.
+  - ⚠️ **Altura de x**: Cormorant tiene x muy baja (0,395 del cuerpo, frente a 0,514 de
+    Helvetica). Para que se vea del mismo tamaño óptico que la sans hay que darle
+    **1,206× su tamaño en px**. Está calculado así, no a ojo.
 - Barras de scroll ocultas globalmente (`html`, `body`, `.carousel-scroll`).
 - Ancho máximo de contenedor consistente: `max-w-[1900px]`.
 
@@ -76,7 +81,7 @@ de modo que quedan fuera del `<main>` que se anima en las transiciones de págin
 |---|---|---|---|
 | `/` | [app/page.js](app/page.js) | `"use client"` | Compone 5 secciones: Hero, Studios, Distribution, Techno, Newsletter |
 | `/about` | [app/about/page.js](app/about/page.js) | `"use client"` | **Página única con diseño propio**: foto a pantalla completa + bloque de 3 piezas (título, cursiva, párrafo) en una columna común, anclado a la mitad inferior — maquetado según una referencia de doble página de revista (ver bitácora 2026-09-07) |
-| `/studios` | [app/studios/page.js](app/studios/page.js) | server | `PageHero`, fondo `--purple` |
+| `/studios` | [app/studios/page.js](app/studios/page.js) | server | **Vaciada (2026-09-07)**: solo "Coming soon..." en Playfair Display Black Italic sobre fondo `--purple`. Ya no usa `PageHero` |
 | `/what-we-do` | [app/what-we-do/page.js](app/what-we-do/page.js) | server | `PageHero`, fondo `--pink` |
 | `/contact` | [app/contact/page.js](app/contact/page.js) | server | `PageHero`, fondo blanco |
 | `/events` | [app/events/page.js](app/events/page.js) | server | `PageHero`, fondo `--olive` |
@@ -573,3 +578,47 @@ Cada ronda de correcciones se apunta aquí: **qué se pidió, qué se hizo, por 
   webfont. En macOS/iOS existe Helvetica Neue Light y el peso 300 se ve ligero de verdad; en
   Windows/Android **Arial no tiene corte light**, así que ahí caerá a regular. Si se quiere el peso
   ligero garantizado en todas las plataformas hay que cargar una webfont. **Decisión del usuario.**
+
+### 2026-09-07 — Cursiva caligráfica, descendentes, medidas y Studios vaciada
+- **Qué se pidió (3 bloques):** (A) en Technology, añadir línea de crédito en cursiva caligráfica
+  bajo el titular, arreglar los descendentes cortados del párrafo serif y estrechar el párrafo sans
+  inferior; (B) en About, cambiar la cursiva por una serif caligráfica de contraste marcado y
+  subir tamaños; (C) vaciar la página Studios dejando solo "Coming soon..." en serif display
+  pesada en cursiva a tamaño enorme.
+- **Fuentes añadidas** en [app/layout.js](app/layout.js): **Cormorant Garamond Italic** (la
+  caligráfica de contraste marcado que pedía la referencia; la anterior EB Garamond italic es una
+  itálica de libro de contraste bajo, de ahí que se percibiera como "genérica") y **Playfair
+  Display 800/900 Italic** para el display de Studios. **EB Garamond italic se eliminó** al
+  quedarse sin uso.
+- **A1 — línea de crédito:** nueva `<p>` en Cormorant italic entre el titular y el primer filete,
+  al ~50 % del tamaño del párrafo serif. El texto está en la constante **`CREDIT_PLACEHOLDER`** de
+  [TechnoSection.jsx](components/TechnoSection.jsx), marcada con comentario en mayúsculas.
+  **PENDIENTE: el usuario debe sustituir ese texto por el copy real.**
+- **A2 — descendentes cortados (causa real):** no era falta de espacio. `WordReveal` usa
+  `SplitText` con **`mask: "words"`**, que crea contenedores `overflow:hidden` a la altura de la
+  caja de línea; con `leading-[1.15]` y una serif de descendentes largos, la `g`/`y`/`j` **se
+  salían de la máscara y se recortaban**. Se subió el interlineado a **`1.5`** (y las holguras a
+  los filetes a 25-32 px). Comprobado con un test que compara el rect del glifo con el de su
+  ancestro `overflow:hidden`: **0 px de desbordamiento en los 8 anchos**.
+- **A3 — párrafo sans más estrecho:** contenedor propio `w-[82%] md:w-[68%]` dentro de la columna.
+  Encaje simétrico de **174 px (1920) a 9 px (320)** por lado.
+- **B — About:** cursiva a Cormorant italic y tamaños recalculados para que el **ratio óptico**
+  (altura de x cursiva / altura de x sans) sea **0,926-0,929 en los 8 anchos** — "un pelín más
+  pequeña". El párrafo sans sube a `clamp(1.1rem,1.45vw,1.9rem)`.
+- **C — Studios:** [app/studios/page.js](app/studios/page.js) reescrita, ya no usa `PageHero`.
+  Solo un `h1` con "Coming soon..." en Playfair Display 900 italic a `12.5vw`/`md:13vw`, blanco
+  sobre `--purple`. Se mantienen header y footer (los pone `TransitionProvider`).
+- **Verificación** en 1920, 1440, 1280, 1024, 768, 430, 390 y 320 px: **0 px de recorte** en los
+  tres textos de Technology y en los dos de About; Studios en **1 sola línea** ocupando el
+  **90,1 %** del viewport en desktop y **86,6 %** en móvil, sin desbordamiento; las tres webfonts
+  confirmadas en uso comparando su métrica contra la serif genérica; 0 errores de página.
+  `build` limpio, `lint` sin warnings nuevos.
+- **Dos errores de medición propios, corregidos** (útil para futuras sesiones):
+  1. `Range.getBoundingClientRect()` sobre un nodo de texto devuelve la **caja de línea**, no los
+     glifos: daba "alturas de x" mayores que el propio cuerpo. Lo correcto es
+     **`canvas.measureText(...).actualBoundingBoxAscent`**.
+  2. Medir el ancho de un elemento que ha pasado por `Copy`/`WordReveal` devuelve el contenedor,
+     no el texto, porque `SplitText` inserta `div`s de línea al 100 %.
+- **Cabo suelto señalado:** la home sigue teniendo una tarjeta que enlaza a `/studios` con texto
+  descriptivo de los estudios, y esa página ahora solo dice "Coming soon...". **Pendiente de
+  decidir** si la tarjeta cambia o se queda.
