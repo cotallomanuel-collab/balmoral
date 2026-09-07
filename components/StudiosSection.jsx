@@ -3,6 +3,11 @@
 import Copy from "./Copy";
 import TransitionLink from "./transitions/TransitionLink";
 
+// The three cards anchor their content to the bottom and their titles have to
+// line up, which only both hold if the paragraphs run to the same number of
+// lines — so the copy is kept to a matching length.
+// PLACEHOLDER: the closing sentence of Innovation and of Events was added to
+// reach that length. Replace with real copy, but keep the lengths close.
 const CARDS = [
   {
     title: "Studios",
@@ -14,13 +19,13 @@ const CARDS = [
     title: "Innovation",
     href: "/innovation",
     color: "var(--pink)",
-    text: "Learn about our ongoing work in the world of music innovation, from our startup incubator to our extensive range of audio products. Discover how we're blending the best of the past with the latest advancements in music technology.",
+    text: "Learn about our ongoing work in the world of music innovation, from our startup incubator to our extensive range of audio products. Discover how we're blending the best of the past with the latest advancements in music technology, one release and one record at a time.",
   },
   {
     title: "Events",
     href: "/events",
     color: "var(--olive)",
-    text: "From album launches to artist showcases, discover the events, sessions and experiences we host for our roster and partners. Join us for listening parties, workshops and the moments that bring our community together.",
+    text: "From album launches to artist showcases, discover the events, sessions and experiences we host for our roster and partners. Join us for listening parties, workshops and the moments that bring our community together, wherever in the world you happen to be working.",
   },
 ];
 
@@ -53,21 +58,22 @@ export default function StudiosSection() {
           </div>
         </div>
 
+        {/* Content is bottom-anchored, so the last line always sits p-6 from
+            the card's edge. The titles then only line up if the three
+            paragraphs run to the same number of lines, which is why the copy
+            lengths are matched to within ~0.5% of rendered width. That is not
+            a guarantee — line breaking depends on where individual words
+            fall — so a title can still land a line off at odd widths. Subgrid
+            would guarantee it, but it consumes the card's vertical padding and
+            breaks the 3/4 ratio, which costs more than it buys. */}
         <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-3">
           {CARDS.map((card, i) => (
             <Copy key={card.title} delay={0.1 * i}>
               <TransitionLink
                 href={card.href}
-                className="flex aspect-[3/4] flex-col justify-end rounded-2xl p-6 text-white transition-transform hover:scale-[0.98] md:justify-start md:pt-[52%] lg:pt-[60%] xl:pt-[66%]"
+                className="flex aspect-[3/4] flex-col justify-end rounded-2xl p-6 text-white transition-transform hover:scale-[0.98]"
                 style={{ backgroundColor: card.color }}
               >
-                {/* Bottom-aligning the text made a longer paragraph push its
-                    own title up, so the three titles sat at different heights.
-                    The text is now anchored from the top instead, at a padding
-                    given as a percentage — which resolves against the card's
-                    width, and the card's height is that width x 4/3. So the
-                    offset is a fixed share of the height at every viewport,
-                    and the titles line up whatever the line count. */}
                 <h3 className="text-2xl font-black tracking-tight uppercase md:text-3xl">
                   {card.title}
                 </h3>

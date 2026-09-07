@@ -678,3 +678,33 @@ Cada ronda de correcciones se apunta aquí: **qué se pidió, qué se hizo, por 
   El test correcto calcula la línea base y le suma `actualBoundingBoxDescent` del canvas, y además
   **excluye header y footer** (el menú móvil colapsado es `overflow-hidden` a propósito y daba
   331 px de falso recorte).
+
+### 2026-09-07 — Tarjetas: vuelta al anclaje inferior manteniendo los títulos alineados
+- **Qué se pidió:** el bloque de las tarjetas había quedado flotando a media altura con un hueco
+  vacío debajo. Volver a anclarlo abajo con el margen de siempre, **sin perder** la alineación de
+  los tres títulos.
+- **La tensión de fondo:** anclar abajo y alinear los títulos **solo pueden darse a la vez si los
+  tres párrafos ocupan el mismo número de líneas**. Si no, o coinciden arriba o coinciden abajo.
+- **Qué se hizo:**
+  1. Revertido a `justify-end` + `p-6`. El margen inferior vuelve a ser **24 px exactos**.
+  2. Igualadas las longitudes de los textos por **ancho renderizado**, no por número de caracteres:
+     se midió con `canvas.measureText` el ancho de una línea de cada texto y se ajustaron las
+     colas hasta quedar a **−2,8 px (Innovation)** y **−9,8 px (Events)** del de Studios (1685,5 px),
+     es decir dentro del 0,6 %.
+  3. **PLACEHOLDER**: la frase final de Innovation ("one release and one record at a time") y la de
+     Events ("wherever in the world you happen to be working") se añadieron solo para llegar a esa
+     longitud. Al sustituir el copy hay que mantener las longitudes parecidas.
+- **Búsqueda sistemática:** se evaluaron **780 combinaciones** de textos midiendo el corte de línea
+  con el **motor real** del navegador (un `div` fuera de pantalla al ancho exacto de la tarjeta) en
+  30 anchos. El mejor resultado posible fue **4 fallos**: el ajuste de texto tiene un techo y no
+  puede garantizar la alineación, porque el corte depende de dónde caen las palabras concretas.
+- **Alternativa estructural descartada:** `grid-rows-subgrid` alinea **30/30**, pero introduce dos
+  regresiones — **consume el padding vertical** de la tarjeta (el texto queda a 1,3 px del borde en
+  vez de 24) y **rompe la proporción 3/4** (baja a 0,57-0,73). Se probó, se midió y **se revirtió**.
+- **Estado final verificado en 30 anchos de 768 a 1920 px:**
+  - Margen inferior: **24 px en las tres tarjetas y en los 30 anchos**, dispersión 0.
+  - Títulos alineados en **25 de 30** anchos. Se desvían una línea o menos en **1550, 1280, 1024,
+    990 y 930 px** (8,7-34,7 px).
+  - `build` limpio, `lint` sin warnings nuevos.
+- **Decisión pendiente del usuario:** aceptar esos 5 anchos, o aceptar el subgrid con sus dos
+  regresiones, o cambiar el diseño (por ejemplo, quitar el `aspect-[3/4]` de las tarjetas).
