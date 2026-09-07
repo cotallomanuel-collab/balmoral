@@ -58,9 +58,16 @@ export default function StudiosSection() {
             <Copy key={card.title} delay={0.1 * i}>
               <TransitionLink
                 href={card.href}
-                className="flex aspect-[3/4] flex-col justify-end rounded-2xl p-6 text-white transition-transform hover:scale-[0.98]"
+                className="flex aspect-[3/4] flex-col justify-end rounded-2xl p-6 text-white transition-transform hover:scale-[0.98] md:justify-start md:pt-[52%] lg:pt-[60%] xl:pt-[66%]"
                 style={{ backgroundColor: card.color }}
               >
+                {/* Bottom-aligning the text made a longer paragraph push its
+                    own title up, so the three titles sat at different heights.
+                    The text is now anchored from the top instead, at a padding
+                    given as a percentage — which resolves against the card's
+                    width, and the card's height is that width x 4/3. So the
+                    offset is a fixed share of the height at every viewport,
+                    and the titles line up whatever the line count. */}
                 <h3 className="text-2xl font-black tracking-tight uppercase md:text-3xl">
                   {card.title}
                 </h3>

@@ -81,8 +81,8 @@ de modo que quedan fuera del `<main>` que se anima en las transiciones de págin
 |---|---|---|---|
 | `/` | [app/page.js](app/page.js) | `"use client"` | Compone 5 secciones: Hero, Studios, Distribution, Techno, Newsletter |
 | `/about` | [app/about/page.js](app/about/page.js) | `"use client"` | **Página única con diseño propio**: foto a pantalla completa + bloque de 3 piezas (título, cursiva, párrafo) en una columna común, anclado a la mitad inferior — maquetado según una referencia de doble página de revista (ver bitácora 2026-09-07) |
-| `/studios` | [app/studios/page.js](app/studios/page.js) | server | **Vaciada (2026-09-07)**: solo "Coming soon..." en Playfair Display Black Italic sobre fondo `--purple`. Ya no usa `PageHero` |
-| `/what-we-do` | [app/what-we-do/page.js](app/what-we-do/page.js) | server | `PageHero`, fondo `--pink` |
+| `/studios` | [app/studios/page.js](app/studios/page.js) | server | **Vaciada (2026-09-07)**: solo "Coming soon..." en la grotesca del sitio (Helvetica Neue 900, sin cursiva) sobre fondo `--purple`. Ya no usa `PageHero` |
+| `/what-we-do` | [app/what-we-do/page.js](app/what-we-do/page.js) | server (envuelve cliente) | **Diseñada de cero (2026-09-07)**: 5 secciones editoriales sobre papel `#F2F0EB` + un bloque morado. Ya no usa `PageHero`. El contenido está en [components/WhatWeDo.jsx](components/WhatWeDo.jsx) — **todo el copy es placeholder** |
 | `/contact` | [app/contact/page.js](app/contact/page.js) | server | `PageHero`, fondo blanco |
 | `/events` | [app/events/page.js](app/events/page.js) | server | `PageHero`, fondo `--olive` |
 | `/innovation` | [app/innovation/page.js](app/innovation/page.js) | server | `PageHero`, fondo `--pink` |
@@ -622,3 +622,59 @@ Cada ronda de correcciones se apunta aquí: **qué se pidió, qué se hizo, por 
 - **Cabo suelto señalado:** la home sigue teniendo una tarjeta que enlaza a `/studios` con texto
   descriptivo de los estudios, y esa página ahora solo dice "Coming soon...". **Pendiente de
   decidir** si la tarjeta cambia o se queda.
+
+### 2026-09-07 — Tarjetas alineadas, Studios en grotesca y What We Do de cero
+- **Qué se pidió:** (1) alinear los títulos de las tarjetas STUDIOS/INNOVATION/EVENTS de la home;
+  (2) cambiar el "Coming soon..." de Studios a una grotesca pura tipo Helvetica, sin cursiva;
+  (3) diseñar la página What We Do entera, sin consultar, con vocabulario editorial de revista.
+- **Aviso:** las capturas y el set de referencias de ese mensaje **no llegaron** (adjunto vacío). Se
+  trabajó con las tres referencias de rondas anteriores y la descripción escrita del usuario. El
+  "rojo de la referencia" que menciona no aparece en ninguna de las tres disponibles; se usó el
+  rosa de marca como pidió.
+
+**1. Tarjetas de la home** ([StudiosSection.jsx](components/StudiosSection.jsx))
+- **Causa:** las tarjetas alineaban su contenido abajo (`justify-end`), así que un párrafo con una
+  línea de más empujaba su propio título hacia arriba. STUDIOS tiene 5 líneas y los otros 4.
+- **Primer intento fallido:** meter el texto en un bloque de altura fija (`md:h-[48%]`). No sujeta,
+  porque los ítems flex tienen `min-height: auto` y no encogen por debajo de su contenido.
+- **Solución:** anclar el texto **desde arriba** con `md:pt-[52%] lg:pt-[60%] xl:pt-[66%]`. El
+  padding en % se resuelve contra el **ancho**, y como la tarjeta es `aspect-[3/4]` su alto es el
+  ancho × 4/3 — así el offset es una fracción constante del alto en cualquier viewport.
+- **No hizo falta ampliar los textos**: el usuario lo condicionaba a "si para cuadrarlo hace falta",
+  y con la solución estructural no hace falta. **Pendiente** si aun así los quiere a igual número
+  de líneas.
+- **Verificado:** dispersión de títulos y de inicios de párrafo = **0 px en los 7 anchos de
+  desktop**, y el texto termina dentro de la tarjeta con 198-342 px de margen.
+
+**2. Studios** ([app/studios/page.js](app/studios/page.js))
+- De Playfair Display Black Italic a la **grotesca del sitio** (`Helvetica Neue`, peso 900, sin
+  cursiva, `tracking-[-0.05em]`), a `13.5vw`/`md:14vw`. Fondo y posición intactos.
+- Verificado: **Helvetica Neue / normal / 900**, 1 línea, **90,8 %** del viewport en desktop y
+  87,5 % en móvil, sin recorte ni desbordamiento.
+- Playfair Display **sigue cargándose**: ahora su consumidor es la cita de What We Do.
+
+**3. What We Do** ([components/WhatWeDo.jsx](components/WhatWeDo.jsx))
+- Página nueva de 5 secciones sobre papel `#F2F0EB`. `page.js` queda como componente servidor solo
+  para conservar `metadata`; el contenido es cliente (necesita `Copy`).
+- **TODO EL TEXTO ES PLACEHOLDER**, marcado con un bloque de comentario al principio del archivo.
+  No se afirman cifras, fechas ni nombres. La atribución de la cita es literalmente
+  "— Attribution to come" para no inventar una persona.
+- **Decisión de color:** el acento rosa **no puede ir sobre el papel** — `#ff8fa6` sobre `#F2F0EB`
+  da ~1,9:1 de contraste, ilegible. Por eso el párrafo con acento vive en un **bloque morado**,
+  donde el rosa da buen contraste y además es el emparejamiento propio de la marca.
+- **Bug encontrado y corregido durante la verificación:** las filas del índice de servicios salían
+  con los nombres apilados letra a letra. Causa: envolver el `div` del grid en `Copy` — `SplitText`
+  reconstruye **todo** el contenido del contenedor en `div`s de línea y colapsa las columnas.
+  **Regla: `Copy` solo sobre elementos de texto hoja, nunca sobre un contenedor con layout.**
+  Tras el arreglo el documento pasó de 6114 px a 4273 px de alto a 1440.
+- **Verificado** en 1920, 1600, 1440, 1280, 1024, 900, 768, 430, 390 y 320 px: 10 filetes de
+  **1 px exacto**; cita en **Playfair Display italic** al 82-92 % del viewport; acento presente y
+  en `rgb(255,143,166)`; **19-27 medidas de columna distintas**; índice con 3 columnas reales en
+  desktop y 1 en móvil, con los 6 nombres a la misma altura; **0 px de recorte de tinta**; sin
+  desbordamiento horizontal; 0 errores. `build` limpio, `lint` sin warnings nuevos.
+- **Tercer error de medición propio, corregido:** el test de recorte marcaba 31,78 px de corte en
+  el titular. Falso positivo: `Range.getBoundingClientRect()` devuelve la **caja de línea**, que
+  con `leading` apretado es menor que ascendente+descendente de la fuente aunque no se corte tinta.
+  El test correcto calcula la línea base y le suma `actualBoundingBoxDescent` del canvas, y además
+  **excluye header y footer** (el menú móvil colapsado es `overflow-hidden` a propósito y daba
+  331 px de falso recorte).
