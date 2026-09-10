@@ -708,3 +708,82 @@ Cada ronda de correcciones se apunta aquí: **qué se pidió, qué se hizo, por 
   - `build` limpio, `lint` sin warnings nuevos.
 - **Decisión pendiente del usuario:** aceptar esos 5 anchos, o aceptar el subgrid con sus dos
   regresiones, o cambiar el diseño (por ejemplo, quitar el `aspect-[3/4]` de las tarjetas).
+
+### 2026-09-10 — Gate de CI, lag del fluido, y base de SEO/legal/consentimiento
+- **Qué se pidió:** arreglar problemas de visibilidad en móvil y de lag (en particular la
+  animación de Technology); cerrar requisitos técnicos (cookies/legal, Google Analytics, SEO,
+  comparativa CDMON vs Vercel); y montar un pipeline de CI con Playwright + GitHub Actions que
+  bloquee un cambio si rompe algo, con diagnóstico detallado.
+- **Causa real del lag, encontrada y corregida:** `FluidSimulation._loop()` ejecutaba sus 40+
+  passes de shader **por frame, sin parar**, mientras el componente estuviera montado — es decir,
+  toda la vida de la página, aunque el usuario ya hubiese hecho scroll y la sección de Technology
+  estuviera fuera de la pantalla. Se añadió un `IntersectionObserver` (`_setupVisibility()`) que
+  pausa el trabajo pesado (`_splat`/`_simulate`/`_render`) cuando el contenedor no está visible,
+  sin tocar el resto de la lógica ni los valores visuales ya ajustados.
+- **Visibilidad en móvil:** la auditoría automatizada (ver más abajo) no encontró desbordamiento
+  horizontal ni errores de consola en ninguna de las 14 rutas a 390 px. **No se identificó un bug
+  concreto de "visibilidad" más allá de eso** — si el usuario tenía algo específico en mente
+  (una captura, un dispositivo concreto), **queda pendiente que lo señale** para poder reproducirlo.
+- **CI con Playwright + GitHub Actions:**
+  - [playwright.config.js](playwright.config.js): dos proyectos (`desktop-chromium`,
+    `mobile-chromium` con el perfil Pixel 7), `webServer` que hace `build` + `start` contra
+    `127.0.0.1:3000`.
+  - [tests/smoke.spec.js](tests/smoke.spec.js): las 14 rutas devuelven 200, sin errores de consola
+    ni peticiones fallidas, sin overflow horizontal a 390 px; `/no-such-page` devuelve 404.
+  - [tests/interactions.spec.js](tests/interactions.spec.js): transición de página, fluid cursor
+    solo en desktop, autoplay del carrusel, menú móvil, banner de cookies.
+  - [.github/workflows/ci.yml](.github/workflows/ci.yml): en cada push/PR a `main` hace
+    `npm ci` → `lint` → `build` → instala Chromium de Playwright → corre los tests → sube el
+    reporte HTML como artefacto si algo falla. **Si el job falla, el PR/commit queda marcado en
+    rojo en GitHub** — eso es lo que "para" el cambio: para que además bloquee la fusión a `main`
+    hace falta activar en GitHub (Settings → Branches → Branch protection rule sobre `main` →
+    exigir el check "Build, lint and E2E tests") — **no se pudo hacer desde aquí** porque no hay
+    `gh` CLI autenticado en esta máquina; es un paso manual de 2 minutos en la web de GitHub.
+  - **Importante sobre Vercel:** Vercel despliega automáticamente en cada push a `main`
+    **independientemente de si el CI de GitHub Actions pasa o falla** — son dos sistemas
+    separados. Para que un fallo de CI *de verdad* impida que salga a producción, el flujo tiene
+    que pasar a ser **rama → Pull Request → CI en verde → merge a `main` → Vercel despliega**, en
+    vez de empujar directo a `main`. Sin ese cambio de flujo (y la regla de branch protection),
+    el CI avisa pero no frena el despliegue.
+  - Verificado en local: `npm run lint` (0 errores), `npm run build` (14 rutas estáticas),
+    `npm run test:e2e` — **53 tests en verde, 5 saltados correctamente** (los que son
+    específicos de un solo proyecto/dispositivo).
+- **SEO:**
+  - `/` y `/about` eran `"use client"` y no podían exportar `metadata` (punto 3 de §6). Se movió su
+    contenido a [components/Home.jsx](components/Home.jsx) y
+    [components/About.jsx](components/About.jsx), y `app/page.js`/`app/about/page.js` pasan a ser
+    componentes servidor con su propio `title`/`description` — el mismo patrón que ya usaba
+    `/what-we-do`.
+  - Añadidos [app/robots.js](app/robots.js) y [app/sitemap.js](app/sitemap.js) (convención nativa
+    de Next, generan `/robots.txt` y `/sitemap.xml`). El sitemap solo lista las páginas públicas,
+    no las legales (que llevan `noindex`).
+  - [app/layout.js](app/layout.js): `metadataBase`, Open Graph y Twitter card por defecto a nivel
+    de sitio, usando la URL de producción `https://balmoral-rouge.vercel.app`.
+  - **Pendiente (no se hizo):** el "plugin especializado" de SEO que menciona el usuario que Uri
+    iba a mandar — no ha llegado ningún archivo. Hace falta que lo pasen para saber qué instalar.
+  - **No se ha dado de alta el sitio en Google Search Console** — eso requiere acceso a una cuenta
+    de Google del cliente para verificar la propiedad; no es algo que se pueda hacer sin esa cuenta.
+- **Cookies / legal / consentimiento:**
+  - [components/CookieConsent.jsx](components/CookieConsent.jsx): banner inferior
+    Aceptar/Rechazar, guarda la elección en `localStorage`, usa `useSyncExternalStore` (no un
+    `useEffect` con `setState`, que el linter de React 19 ya marca como error) para leer el
+    valor sin parpadeo ni mismatch de hidratación.
+  - [components/Analytics.jsx](components/Analytics.jsx): **no carga nada** salvo que exista la
+    variable de entorno `NEXT_PUBLIC_GA_MEASUREMENT_ID` **y** el visitante haya aceptado. Sin la
+    variable puesta, es un no-op total — no hay ninguna llamada a Google todavía.
+  - Tres páginas nuevas: [app/privacy/page.js](app/privacy/page.js),
+    [app/cookies/page.js](app/cookies/page.js), [app/legal-notice/page.js](app/legal-notice/page.js)
+    — enlazadas desde el footer (antes apuntaban a anclas `#privacy`/`#disclaimer` inexistentes,
+    punto 1 de §6). **Son un borrador**, marcado con un aviso visible en cada página: tienen
+    placeholders entre corchetes (`[BALMORAL LEGAL ENTITY NAME]`, dirección, NIF/CIF, email de
+    protección de datos) porque **no tengo esos datos reales de la empresa**, y el texto legal en
+    sí **no ha sido revisado por un abogado**. No se pueden dar por válidos para evitar una multa
+    tal cual están — son el punto de partida, no el documento final.
+- **Google Analytics — qué hace falta del usuario:** el ID de medición de GA4 (formato
+  `G-XXXXXXXXXX`), que se obtiene creando una propiedad en https://analytics.google.com con la
+  cuenta de Google que se vaya a usar (`uri@mushroompillow.com` según el mensaje del usuario).
+  En cuanto se tenga el ID, se añade como variable de entorno en Vercel
+  (`NEXT_PUBLIC_GA_MEASUREMENT_ID`) y empieza a funcionar solo, sin tocar código.
+- **No se tocó:** el resto de fallos de §6 (newsletter que no envía nada, botones "Learn More"
+  muertos, `TransitionLink` sin soporte de Ctrl/Cmd-click, `matter-js` sin usar, imágenes sin
+  optimizar en origen) — quedan igual que en la última auditoría, no se pidieron esta vez.
