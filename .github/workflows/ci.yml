@@ -1,8 +1,9 @@
 name: CI
 
-# Runs on every push and every PR. If this fails, the branch is not safe to
-# deploy: fix it before merging into main. Vercel is configured to build
-# from main, so keeping main green is what keeps production from breaking.
+# Runs on every push and every PR. Production only deploys after the
+# build-and-test job below passes — see the deploy job at the bottom, and
+# the "Ignored Build Step" note in the deploy job's comment for the other
+# half of this (disabling Vercel's own git-triggered production deploys).
 on:
   push:
     branches: [main]
@@ -46,3 +47,58 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 14
+
+  deploy:
+    name: Deploy to Vercel (production)
+    needs: build-and-test
+    # Only main, only on an actual push (not on PRs — those stay unpublished
+    # until merged), and only once VERCEL_TOKEN is actually set as a repo
+    # secret — otherwise this job is skipped (not failed) rather than
+    # breaking CI on every commit while the secrets aren't set up yet.
+    if: |
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      secrets.VERCEL_TOKEN != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel project settings
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build for production via Vercel
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy prebuilt output to production
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "Deployed to: $url"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      # For this job to be the ONLY thing that reaches production, Vercel's
+      # own git-triggered deploys for this project must be turned off —
+      # otherwise Vercel still deploys instantly on every push, before this
+      # job (or the tests above it) even finish, and this job just becomes
+      # a redundant second deploy. In the Vercel dashboard: Project ->
+      # Settings -> Git -> "Ignored Build Step" -> set it to a command that
+      # always exits 0, e.g. `exit 0`. That cancels every git-triggered
+      # build (preview and production) unconditionally; deploys made via
+      # `vercel deploy` from this workflow are unaffected by that setting,
+      # since they don't go through the git integration at all.
