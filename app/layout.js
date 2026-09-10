@@ -6,6 +6,8 @@ import {
 } from "next/font/google";
 import SmoothScroll from "@/components/SmoothScroll";
 import TransitionProvider from "@/components/transitions/TransitionProvider";
+import CookieConsent from "@/components/CookieConsent";
+import Analytics from "@/components/Analytics";
 
 // Roman serif for editorial body copy set upright.
 const ebGaramond = EB_Garamond({
@@ -33,9 +35,30 @@ const playfairItalic = Playfair_Display({
   variable: "--font-display-serif",
 });
 
+const SITE_URL = "https://balmoral-rouge.vercel.app";
+
 export const metadata = {
-  title: "Balmoral | Label Services",
-  description: "Balmoral Label Services — demo landing page.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Balmoral | Independent Label Services",
+    template: "%s | Balmoral",
+  },
+  description:
+    "Balmoral is an independent label services company supporting artists and labels worldwide since 2006 — distribution, technology and studios, built in-house.",
+  openGraph: {
+    type: "website",
+    url: SITE_URL,
+    siteName: "Balmoral",
+    title: "Balmoral | Independent Label Services",
+    description:
+      "Balmoral is an independent label services company supporting artists and labels worldwide since 2006.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Balmoral | Independent Label Services",
+    description:
+      "Balmoral is an independent label services company supporting artists and labels worldwide since 2006.",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -48,6 +71,8 @@ export default function RootLayout({ children }) {
         <SmoothScroll>
           <TransitionProvider>{children}</TransitionProvider>
         </SmoothScroll>
+        <CookieConsent />
+        <Analytics />
       </body>
     </html>
   );

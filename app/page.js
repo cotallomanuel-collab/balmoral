@@ -1,19 +1,11 @@
-"use client";
+import Home from "@/components/Home";
 
-import Hero from "@/components/Hero";
-import StudiosSection from "@/components/StudiosSection";
-import DistributionSection from "@/components/DistributionSection";
-import TechnoSection from "@/components/TechnoSection";
-import NewsletterSection from "@/components/NewsletterSection";
+export const metadata = {
+  title: "Balmoral | Independent Label Services",
+  description:
+    "Balmoral is an independent label services company supporting artists and labels worldwide since 2006 — distribution, technology and studios, built in-house.",
+};
 
-export default function Home() {
-  return (
-    <>
-      <Hero />
-      <StudiosSection />
-      <DistributionSection />
-      <TechnoSection />
-      <NewsletterSection />
-    </>
-  );
+export default function HomePage() {
+  return <Home />;
 }

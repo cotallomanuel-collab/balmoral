@@ -21,7 +21,25 @@ export class FluidSimulation {
     this._setupTargets();
     this._setupMaterials();
     this._setupInput();
+    this._setupVisibility();
     this._loop();
+  }
+
+  // The solver runs 40+ shader passes per frame. Without this, it keeps
+  // doing that work at full rate even while the section is scrolled out of
+  // view, which is what was causing the page-wide lag — this pauses the
+  // heavy work (not the rAF tick itself) whenever the container isn't
+  // on screen.
+  _setupVisibility() {
+    this._visible = true;
+    if (typeof IntersectionObserver === "undefined") return;
+    this._observer = new IntersectionObserver(
+      ([entry]) => {
+        this._visible = entry.isIntersecting;
+      },
+      { threshold: 0 },
+    );
+    this._observer.observe(this.container);
   }
 
   _size() {
@@ -302,6 +320,11 @@ export class FluidSimulation {
     let lastTime = Date.now();
     const tick = () => {
       if (!this.running) return;
+      if (!this._visible) {
+        lastTime = Date.now();
+        this._frame = requestAnimationFrame(tick);
+        return;
+      }
       const dt = Math.min((Date.now() - lastTime) / 1000, 0.016);
       lastTime = Date.now();
       if (this.mouse.moved) {
@@ -323,6 +346,7 @@ export class FluidSimulation {
   dispose() {
     this.running = false;
     if (this._frame) cancelAnimationFrame(this._frame);
+    this._observer?.disconnect();
     window.removeEventListener("resize", this._onResize);
     this.inputEl.removeEventListener("mousemove", this._onMouseMove);
     this.inputEl.removeEventListener("touchmove", this._onTouchMove);

@@ -52,11 +52,14 @@ export default function Footer() {
           </div>
 
           <div className="flex flex-col gap-2 text-sm text-white/80">
-            <Link href="#disclaimer" className="hover:text-white">
+            <Link href="/legal-notice" className="hover:text-white">
               Disclaimer
             </Link>
-            <Link href="#privacy" className="hover:text-white">
+            <Link href="/privacy" className="hover:text-white">
               Privacy Policy
+            </Link>
+            <Link href="/cookies" className="hover:text-white">
+              Cookie Policy
             </Link>
             <Link href="#statement" className="hover:text-white">
               Statement regarding AI
