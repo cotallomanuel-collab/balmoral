@@ -61,8 +61,11 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # This has to match the GitHub Environment the secrets are actually
+    # scoped to (Settings -> Environments), not just any name — a job only
+    # gets environment-scoped secrets for the environment it declares here.
     environment:
-      name: production
+      name: VERCEL_TOKEN
       url: ${{ steps.deploy.outputs.url }}
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
