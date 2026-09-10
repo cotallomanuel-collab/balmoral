@@ -787,3 +787,59 @@ Cada ronda de correcciones se apunta aquí: **qué se pidió, qué se hizo, por 
 - **No se tocó:** el resto de fallos de §6 (newsletter que no envía nada, botones "Learn More"
   muertos, `TransitionLink` sin soporte de Ctrl/Cmd-click, `matter-js` sin usar, imágenes sin
   optimizar en origen) — quedan igual que en la última auditoría, no se pidieron esta vez.
+
+### 2026-09-10 (continuación) — El primer run de CI en GitHub falló: diagnóstico y corrección
+- **Contexto:** justo lo que el pipeline de CI tenía que demostrar que servía para algo. El primer
+  push a `main` con todo lo de arriba **falló en GitHub Actions** (`npm run test:e2e`, con
+  `lint` y `build` en verde). El segundo push (solo este `contexto.md`) pasó. Se investigó con la
+  API de GitHub (`/actions/runs`, `/actions/runs/{id}/jobs`, y la página HTML del job — los logs
+  crudos vía API dan 403 sin `gh` autenticado) en vez de asumir que era un cuelgue sin más.
+- **Error real:** `locator.scrollIntoViewIfNeeded: Element is not attached to the DOM` en dos
+  tests (`fluid cursor canvas mounts...`, `image carousel autoplays`), ambos con reintentos
+  agotados.
+- **Causa raíz encontrada (no era solo el test):** [components/SmoothScroll.jsx](components/SmoothScroll.jsx)
+  montaba `<ReactLenis root>{children}</ReactLenis>` o devolvía `children` a secas según
+  `isDesktop`. `isDesktop` empieza en `null` (evita mismatch de hidratación) y pasa a
+  `true`/`false` en un efecto justo después del montaje. Ese cambio hace que, en la posición que
+  ocupa `children` dentro del árbol de React, el tipo de elemento pase de "sin envoltorio" a
+  "envuelto en `<ReactLenis>`" (o viceversa) — un cambio de tipo en esa posición fuerza a React a
+  **desmontar y volver a montar todo el subárbol de golpe**: `Header`, `TransitionProvider`, toda
+  la página, el canvas de WebGL, el carrusel. Ocurre en **todas las cargas de página, en móvil y
+  en escritorio**, en una ventana de tiempo muy corta pero real — es lo que el test de Playwright
+  cazó al intentar interactuar justo en ese instante.
+- **Primer intento de arreglo, probado y descartado:** mantener `<ReactLenis>` siempre montado (así
+  `children` nunca cambia de posición/tipo) y alternar Lenis con `lenis.stop()`/`lenis.start()` en
+  vez de montarlo/desmontarlo. Se implementó, y **antes de darlo por bueno** se comprobó con un
+  script de Playwright aparte simulando scroll real en `http://127.0.0.1:3000` en producción
+  (`npm run build && npm run start`): en móvil, tras `lenis.stop()`, el `scrollY` **se quedaba
+  clavado en 0** — no bajaba nada. Revisando el código fuente de `lenis` (`onVirtualScroll` en
+  `node_modules/lenis/dist/lenis.mjs`) se confirmó por qué:
+  ```
+  if (this.isStopped || this.isLocked) {
+    if (event.cancelable) event.preventDefault();
+    return;
+  }
+  ```
+  `stop()` no "se aparta" y deja pasar el scroll nativo — **llama a `preventDefault()` y bloquea el
+  evento**. Es para congelar el scroll de fondo con un modal abierto, no para desactivarse con
+  elegancia. Usarlo así habría reintroducido, con otra forma, el mismo bug de "no puedo bajar en
+  el móvil" que se arregló el 2026-09-01. **Se revirtió** ese cambio.
+- **Arreglo final, el que quedó:** `SmoothScroll.jsx` vuelve exactamente a la versión que ya
+  funcionaba (`if (!isDesktop) return children;`), con un comentario explicando por qué la
+  alternativa con `stop()`/`start()` no es segura, para que nadie la reintente sin volver a leer
+  esto. El remount de una sola vez en la carga **se queda como está** — no hay forma segura de
+  evitarlo sin repensar la arquitectura de scroll, y su impacto real para un visitante humano es
+  mínimo (ocurre en un margen de tiempo que nadie llega a interactuar), a diferencia del problema
+  de rendimiento continuo del fluido de más arriba, que sí afectaba a cualquiera que se quedase
+  navegando la página.
+  Lo que sí se arregló fue el **test**: se añadió una espera corta (400 ms) tras `page.goto()` en
+  [tests/interactions.spec.js](tests/interactions.spec.js) antes de interactuar con nada que
+  dependa de `isDesktop`, para dejar de cazar esa ventana de remount. **Verificado con 4 pasadas
+  seguidas de la suite completa en local, todas en verde (53/53, 5 saltados por diseño)**, y con
+  un script aparte confirmando scroll real: móvil `scrollY` 0→5809 (sin clase `lenis`), escritorio
+  0→4731 (con clase `lenis`) — igual que antes de tocar nada.
+- **Por qué queda esto documentado con este nivel de detalle:** es exactamente el escenario para
+  el que se pidió el pipeline de CI — pilló un bug de verdad (el remount), y evitó que una
+  "solución" que parecía razonable sobre el papel (`stop()`/`start()`) se colara sin probarla contra
+  scroll real. Cualquier sesión futura que toque `SmoothScroll.jsx` debería leer esto antes de
+  intentar "optimizarlo" otra vez.
