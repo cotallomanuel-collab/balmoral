@@ -52,13 +52,13 @@ jobs:
     name: Deploy to Vercel (production)
     needs: build-and-test
     # Only main, only on an actual push (not on PRs — those stay unpublished
-    # until merged), and only once VERCEL_TOKEN is actually set as a repo
-    # secret — otherwise this job is skipped (not failed) rather than
-    # breaking CI on every commit while the secrets aren't set up yet.
-    if: |
-      github.ref == 'refs/heads/main' &&
-      github.event_name == 'push' &&
-      secrets.VERCEL_TOKEN != ''
+    # until merged). GitHub Actions doesn't allow referencing `secrets` in a
+    # job-level `if` (that's a hard restriction, not a typo — see commit
+    # history if this is ever "fixed" back to checking secrets here), so
+    # this assumes VERCEL_TOKEN/VERCEL_ORG_ID/VERCEL_PROJECT_ID are set as
+    # repo secrets. If they're missing, this job fails loudly instead of
+    # silently skipping — which is fine once they're configured.
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
