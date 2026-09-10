@@ -89,7 +89,7 @@ export default function WhatWeDo() {
             {HEADLINE.map((line, i) => (
               <span key={line} className={`block ${STEP[i]}`}>
                 <Copy delay={0.08 * i} animateOnScroll={false}>
-                  <span className="block text-[13vw] leading-[0.84] font-black tracking-[-0.055em] uppercase select-none md:text-[9.5vw]">
+                  <span className="block text-[11.5vw] leading-[0.84] font-black tracking-[-0.055em] uppercase select-none md:text-[9.5vw]">
                     {line}
                   </span>
                 </Copy>
