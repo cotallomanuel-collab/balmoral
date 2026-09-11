@@ -195,7 +195,7 @@ export default function WhatWeDo() {
       </section>
 
       {/* ── 5. Closing. Two different measures, opposite edges. ───────────── */}
-      <section className="flex min-h-[70vh] w-full flex-col justify-end px-4 pt-24 pb-20 md:px-6 md:pb-28">
+      <section className="w-full px-4 pt-10 pb-20 md:px-6 md:pt-16 md:pb-28">
         <div className={SHELL}>
           <div className={RULE} />
           <div className="mt-8 flex flex-col gap-10 md:mt-10 md:flex-row md:items-start md:justify-between md:gap-20">
