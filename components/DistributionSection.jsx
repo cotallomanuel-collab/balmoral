@@ -22,7 +22,7 @@ export default function DistributionSection() {
       <div className="mx-auto grid h-full w-full max-w-[1900px] grid-cols-1 items-start gap-6 px-4 pt-28 md:grid-cols-[minmax(0,42rem)_1fr] md:px-6 md:pt-32">
         <div>
           <Copy>
-            <h2 className="text-6xl leading-[1.18] font-black tracking-tight select-none md:text-7xl lg:text-8xl">
+            <h2 className="text-[13vw] leading-[1.18] font-black tracking-tight select-none md:text-7xl lg:text-8xl">
               Distribution
               <br />
               and beyond

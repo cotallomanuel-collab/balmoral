@@ -7,7 +7,6 @@ import Copy from "@/components/Copy";
 // to hold the layout and to sound like Balmoral, nothing more. No figures,
 // dates, names or claims are asserted. Replace the strings, keep the styling.
 // ─────────────────────────────────────────────────────────────────────────────
-const EYEBROW = "What We Do";
 const HEADLINE = ["Distribution", "and everything", "after it"];
 
 const CREDIT =
@@ -76,16 +75,10 @@ const STEP = ["", "md:ml-[10%]", "md:ml-[24%]"];
 export default function WhatWeDo() {
   return (
     <div style={{ backgroundColor: PAPER }} className="w-full text-black">
-      {/* ── 1. Opening. Anchored to the bottom, air above. ────────────────── */}
-      <section className="flex min-h-screen w-full flex-col justify-end px-4 pt-32 pb-14 md:px-6 md:pb-20">
+      {/* ── 1. Opening. Sits right under the header, no forced full-screen air. ─ */}
+      <section className="flex w-full flex-col px-4 pt-32 pb-14 md:px-6 md:pb-20">
         <div className={SHELL}>
-          <Copy animateOnScroll={false}>
-            <p className="text-[0.68rem] font-bold tracking-[0.42em] uppercase opacity-60">
-              {EYEBROW}
-            </p>
-          </Copy>
-
-          <h1 className="mt-5 md:mt-7">
+          <h1>
             {HEADLINE.map((line, i) => (
               <span key={line} className={`block ${STEP[i]}`}>
                 <Copy delay={0.08 * i} animateOnScroll={false}>
@@ -144,13 +137,7 @@ export default function WhatWeDo() {
       {/* ── 3. Services, as a numbered index with hairlines. ──────────────── */}
       <section className="w-full px-4 py-20 md:px-6 md:py-28">
         <div className={SHELL}>
-          <Copy>
-            <p className="text-[0.68rem] font-bold tracking-[0.42em] uppercase opacity-60">
-              Index of services — provisional
-            </p>
-          </Copy>
-
-          <div className="mt-8 md:mt-12">
+          <div>
             {SERVICES.map((s, i) => (
               <div key={s.n}>
                 <div className={RULE} />
@@ -185,8 +172,8 @@ export default function WhatWeDo() {
         </div>
       </section>
 
-      {/* ── 4. Pull quote, filling the page. ─────────────────────────────── */}
-      <section className="w-full px-4 py-24 md:px-6 md:py-36">
+      {/* ── 4. Pull quote. ────────────────────────────────────────────────── */}
+      <section className="w-full px-4 py-10 md:px-6 md:py-20">
         <div className={SHELL}>
           <Copy>
             <blockquote
